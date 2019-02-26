@@ -1,16 +1,23 @@
 package com.xjf.apachepoitest.controller;
 
+import com.xjf.apachepoitest.util.ExcelUtils;
 import io.swagger.annotations.ApiOperation;
 import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.DataFormatter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.swing.filechooser.FileSystemView;
 import java.io.*;
 import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
 
 /**
  * Apache Poi处理Excel
@@ -19,6 +26,8 @@ import java.util.Date;
  */
 @RestController
 public class PoiExcelController {
+    @Autowired
+    private ExcelUtils excelUtils;
 
     /**
      * 在桌面上生成一个Excel文件
@@ -135,6 +144,34 @@ public class PoiExcelController {
         return "read success";
     }
 
+    /**
+     * 使用工具类读取Excel
+     * @param file
+     * @return
+     */
+    @ApiOperation(value = "使用工具类读取Excel",notes = "使用工具类读取Excel")
+    @PostMapping("/readExcelByUtil")
+    public String readExcelByUtil(@RequestParam("file")MultipartFile file){
+        List<LinkedHashMap<String, String>> excelInfo = excelUtils.readExcel(file,0);
+
+        excelInfo.forEach(info->{
+            System.out.println("id:"+ info.get("id"));
+            System.out.println("订单号:"+ info.get("订单号"));
+            System.out.println("下单时间:"+ info.get("下单时间"));
+            System.out.println("个数:"+ info.get("个数"));
+            System.out.println("单价:"+ info.get("单价"));
+            System.out.println("订单金额:"+ info.get("订单金额"));
+
+        });
+
+        return "read success";
+    }
+
+    /**
+     * 获取单元格数据
+     * @param hssfCell
+     * @return
+     */
     private String getHssfCellValue(HSSFCell hssfCell) {
         String cellvalue="";
         DataFormatter formatter = new DataFormatter();
